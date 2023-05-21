@@ -8,8 +8,6 @@ import segmentation
 from skimage.io import imread
 from skan import draw
 
-# Přidělat argument pro učení SVM, který bude očekávat xml soubor s anotacemi
-
 if not sys.argv[1].endswith(".json"):
     print("Output json is not specified")
     sys.exit()

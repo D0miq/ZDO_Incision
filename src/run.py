@@ -66,6 +66,7 @@ for file in inputFiles:
     
     if visualisation:
         draw.overlay_euclidean_skeleton_2d(img, branch_data)
+        plt.show()
 
     # Klasifikace
     features = description.get_feature_vector(branch_data)

@@ -101,7 +101,7 @@ for file in input_files:
 
     global_angles.append(angles)
 
-    if(visualisation):
+    if visualisation:
         plt.show()
 
 output.write_to_output(output_file, input_files, global_incisions, global_relative_intersections, global_angles)

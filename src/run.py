@@ -83,9 +83,13 @@ for file in inputFiles:
     # Výpočet průsečíků
     intersections = intersection.compute_intersections(incisions, stitches)
     print(f"Intersections:{intersections}")
-    
-    global_relative_intersections.append(intersection.compute_relative_intersections(intersections, incisions[0]))
-    
+
+    relative_intersections = list()
+    if len(incisions) > 0:
+        relative_intersections = intersection.compute_relative_intersections(intersections, incisions[0])
+
+    global_relative_intersections.append(relative_intersections)
+
     # Výpočet úhlů
     angles = angle.compute_angles(incisions, stitches, intersections);
     print(f"Angles:{angles}\n")

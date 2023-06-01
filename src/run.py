@@ -4,31 +4,34 @@ import matplotlib.pyplot as plt
 from skan import draw
 from skimage.io import imread
 
+import angle
 import annotations
 import classification
 import description
+import intersection
 import output
 import preprocessing
 import segmentation
-import angle
-import intersection
+import input_parser
 
 if not sys.argv[1].endswith(".json"):
     print("Output json is not specified")
     sys.exit()
 
-outputFile = sys.argv[1]
+output_file = sys.argv[1]
 
 if sys.argv[2] == "-v":
     visualisation = True
-    inputFiles = sys.argv[3:]
+    input_paths = sys.argv[3:]
 else:
     visualisation = False
-    inputFiles = sys.argv[2:]
+    input_paths = sys.argv[2:]
 
-if len(inputFiles) == 0:
+if len(input_paths) == 0:
     print("No input files are specified")
     sys.exit()
+
+input_files = input_parser.get_input_files(input_paths)
 
 svc = classification.create_svm()
 [train_data, train_target] = annotations.read_annotations()
@@ -38,7 +41,7 @@ global_relative_intersections = list()
 global_incisions = list()
 global_angles = list()
 
-for file in inputFiles:
+for file in input_files:
     print(f"File:{file}")
     img = imread(file)
 
@@ -47,7 +50,7 @@ for file in inputFiles:
         plt.imshow(img)
 
     img = preprocessing.convert_to_grayscale(img)
-    
+
     if visualisation:
         plt.figure()
         plt.imshow(img, cmap='gray')
@@ -62,11 +65,13 @@ for file in inputFiles:
         branch_data = description.create_branches(img)
     except:
         print("Unable to retrieve data from a skelet\n")
-        sys.exit()
-    
+        global_relative_intersections.append(list())
+        global_incisions.append(list())
+        global_angles.append(list())
+        continue
+
     if visualisation:
         draw.overlay_euclidean_skeleton_2d(img, branch_data)
-        plt.show()
 
     # Klasifikace
     features = description.get_feature_vector(branch_data)
@@ -77,9 +82,9 @@ for file in inputFiles:
     (incisions, stitches) = description.get_incisions_and_stitches(branch_types, branch_data)
     print(f"Incisions:{incisions}")
     print(f"Stitches:{stitches}")
-    
+
     global_incisions.append(incisions)
-    
+
     # Výpočet průsečíků
     intersections = intersection.compute_intersections(incisions, stitches)
     print(f"Intersections:{intersections}")
@@ -91,9 +96,12 @@ for file in inputFiles:
     global_relative_intersections.append(relative_intersections)
 
     # Výpočet úhlů
-    angles = angle.compute_angles(incisions, stitches, intersections);
+    angles = angle.compute_angles(incisions, stitches, intersections)
     print(f"Angles:{angles}\n")
-    
+
     global_angles.append(angles)
-    
-output.write_to_output(outputFile, inputFiles, global_incisions, global_relative_intersections, global_angles)
+
+    if(visualisation):
+        plt.show()
+
+output.write_to_output(output_file, input_files, global_incisions, global_relative_intersections, global_angles)

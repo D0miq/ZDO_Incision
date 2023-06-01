@@ -1,8 +1,7 @@
 import numpy as np
-
 from skimage import morphology
-from skimage.segmentation import watershed
 from skimage.filters import sobel
+from skimage.segmentation import watershed
 
 
 def create_segmentation(img):

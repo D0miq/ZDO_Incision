@@ -9,23 +9,23 @@ def create_branches(img):
     return summarize(Skeleton(skelet))
 
 
-# Z branch_data získá euklidovskou vzdálenost a image coord ve tvaru [distance, coord-src-0_src, coord-src-1_src, coord-dst-0_dst, coord-dst-1_dst] pro každou část skeletu
 def get_feature_vector(branch_data):
     distances = branch_data['euclidean-distance']
-    coord_img_srcX = branch_data['image-coord-src-1']
-    coord_img_srcY = branch_data['image-coord-src-0']
-    coord_img_dstX = branch_data['image-coord-dst-1']
-    coord_img_dstY = branch_data['image-coord-dst-0']
-    # ]
-    result = np.array([list(a) for a in zip((coord_img_dstX - coord_img_srcX) / distances, (coord_img_dstY - coord_img_srcY) / distances)])
+    coord_img_src_x = branch_data['image-coord-src-1']
+    coord_img_src_y = branch_data['image-coord-src-0']
+    coord_img_dst_x = branch_data['image-coord-dst-1']
+    coord_img_dst_y = branch_data['image-coord-dst-0']
+
+    result = np.array([list(a) for a in zip((coord_img_dst_x - coord_img_src_x) / distances,
+                                            (coord_img_dst_y - coord_img_src_y) / distances)])
     result[np.isnan(result)] = 0
     return result
 
 
 def get_incisions_and_stitches(branch_types, branch_data):
-    incisions = list() 
+    incisions = list()
     stitches = list()
-    
+
     for i in range(0, len(branch_types)):
         start = np.array([branch_data['image-coord-src-1'][i], branch_data['image-coord-src-0'][i]])
         end = np.array([branch_data['image-coord-dst-1'][i], branch_data['image-coord-dst-0'][i]])
@@ -35,7 +35,7 @@ def get_incisions_and_stitches(branch_types, branch_data):
             start = end
             end = temp
 
-        if branch_types[i] == -1:            
+        if branch_types[i] == -1:
             if len(incisions) == 0:
                 incisions.append(start)
                 incisions.append(end)
